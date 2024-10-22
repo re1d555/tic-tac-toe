@@ -1,5 +1,4 @@
 function gameBoard() {
-
     const rows = 3;
     const columns = 3;
     const board = [];
@@ -11,26 +10,36 @@ function gameBoard() {
         }
     }
 
-    const makeMark = (cell, player) => {
-        
+    const makeMark = (cell, player, combination) => {
         let row = Math.floor(cell / 3);
         let col = cell % 3;
 
-        if (board[row][col] != '*') return
+        if (board[row][col] != '*') {console.log('Choose another marker!'); return} 
 
         board[row][col] = player;
+
+        combination.push(cell);
+    }
+
+    const winnerCombination = (player, combination) => {
+        const winCombs = ['012','345','678','036','147','258','048','246'];
+
+        let playerComb = combination.join('');
+
+        for (i = 0; i < winCombs.length; i++) {
+            winCombs[i] === playerComb ? console.log(`${player} WIN!`) : console.log(`please continue...`);
+        }
     }
 
     const printBoard = () => {
         console.log(board);
+        console.log('Choose from 0 to 8');
     }
 
-    return {printBoard, makeMark};
+    return {printBoard, makeMark, winnerCombination};
 }
 
-
 function gameFlow() {
-
     const board = gameBoard();
 
     let playerOne = '';
@@ -39,11 +48,13 @@ function gameFlow() {
     const players = [
         {
             name: playerOne,
-            marker: 'X'
+            marker: 'X',
+            combination: []
         },
         {
             name: playerTwo,
-            marker: 'O'
+            marker: 'O',
+            combination: []
         }
     ]
 
@@ -70,7 +81,9 @@ function gameFlow() {
     }
 
     const playRound = (markerOnBoard) => {
-        board.makeMark(markerOnBoard, activePlayer.marker);
+        board.makeMark(markerOnBoard, activePlayer.marker, activePlayer.combination);
+
+        board.winnerCombination(activePlayer.name, activePlayer.combination);
 
         switchPlayerTurn();
         printNewRound();
