@@ -11,36 +11,40 @@ function gameBoard() {
     }
 // make mark in cell from 0 to 8
     const makeMark = (cell, player, combination, notSwitch) => {
-        notSwitch.shift(1);
+        notSwitch.shift(1); 
+
         let row = Math.floor(cell / 3);
         let col = cell % 3;
 // check if already marked
         if (board[row][col] != '*') {
             console.log('Choose another marker!');
-            notSwitch.push(1);
+            notSwitch.push(1); // prevent players change
             return;
         }
-
         board[row][col] = player;
 // push active player marks for check on win condition
         combination.push(cell);
     }
 
     const winCon = (combination, result) => {
-        const winCombs = ['012','345','678','036','147','258','048','246'];
-
-        let playerComb = combination.join('');
-// if push 1 into result then activePlayer WIN!
+        const winCombs = [
+            [board[0][0], board[0][1], board[0][2]], // [0, 1, 2]
+            [board[1][0], board[1][1], board[1][2]], // [3, 4, 5]
+            [board[2][0], board[2][1], board[2][2]], // [6, 7, 8]
+            [board[0][0], board[1][0], board[2][0]], // [0, 3, 6]
+            [board[0][1], board[1][1], board[2][1]], // [1, 4, 7]
+            [board[0][2], board[1][2], board[2][2]], // [2, 5, 8]
+            [board[0][0], board[1][1], board[2][2]]] // [0, 4, 8] || [2, 4, 6]
+    
         for (i = 0; i < winCombs.length; i++) {
-            if (winCombs[i] === playerComb) result.push(1); // HERE BUG
+            if (['XXX', 'OOO'].includes(winCombs[i].join(''))) result.push(1); // push 1 for WIN
         }
-// if push 2 into result then TIE!
-        if (combination.length === 5) result.push(2); // HERE BUG
+
+        if (combination.length === 5) result.push(2); // push 2 for TIE
     }
 
     const printBoard = () => {
         console.log(board);
-
     }
 
     return {printBoard, makeMark, winCon};
@@ -56,9 +60,9 @@ function gameFlow() {
         {
             name: playerOne,
             marker: 'X',
-            combination: [],
-            result: [],
-            notSwitch: []
+            combination: [], // sequence of choosing cells
+            result: [], // check for WIN or TIE
+            notSwitch: [] // check of choosing wrong cell
         },
         {
             name: playerTwo,
@@ -87,11 +91,9 @@ function gameFlow() {
         activePlayer === players[0] ? activePlayer = players[1] : activePlayer = players[0];
     }
 
-    // const getActivePlayer = () => activePlayer;
-
     const printNewRound = () => {
         board.printBoard();
-        console.log(`${activePlayer.name}'s turn (game.playRound(availableNumberOnBoard))`);
+        console.log(`${activePlayer.name}'s turn (game.playRound(availableCellOnBoard))`);
     }
 
     const playRound = (markerOnBoard) => {
