@@ -6,9 +6,13 @@ function gameBoard() {
     for (i = 0; i < rows; i++) {
         board[i] = [];
         for (j = 0; j < columns; j++) {
-            board[i].push('*');
+            board[i].push(' ');
         }
     }
+
+// for interface function
+const getBoard = () => board; 
+
 // make mark in cell from 0 to 8
     const makeMark = (cell, player, combination, notSwitch) => {
         notSwitch.shift(1); 
@@ -47,7 +51,7 @@ function gameBoard() {
         console.log(board);
     }
 
-    return {printBoard, makeMark, winCon};
+    return {printBoard, makeMark, winCon, getBoard};
 }
 
 function gameFlow() {
@@ -91,6 +95,8 @@ function gameFlow() {
         activePlayer === players[0] ? activePlayer = players[1] : activePlayer = players[0];
     }
 
+    const getActivePlayer = () => activePlayer;
+
     const printNewRound = () => {
         board.printBoard();
         console.log(`${activePlayer.name}'s turn (game.playRound(availableCellOnBoard))`);
@@ -118,8 +124,42 @@ function gameFlow() {
 
     welcome();
 
-    return {getNames, playRound};
+    return {getNames, playRound, getBoard: board.getBoard, getActivePlayer};
 }
 
-const game = gameFlow();
+// const game = gameFlow();
 
+const screenController = () => {
+    const game = gameFlow();
+    const board = game.getBoard();
+
+    const startBtn = document.querySelector('.startBtn');
+    const startDiv = document.querySelector('.startDiv');
+    const gameField = document.querySelector('.gameField');
+
+
+    const startClickHandler = () => {
+        startDiv.remove();
+
+        const boardDiv = document.createElement('div')
+        gameField.appendChild(boardDiv);
+        boardDiv.classList.add('board');
+
+        board.forEach(row => {
+            row.forEach(() => {
+                const cellBtn = document.createElement('button');
+                cellBtn.classList.add('cell');
+                // cellBtn.textContent = ' '
+                boardDiv.appendChild(cellBtn);
+            })
+        })
+    }
+
+    startBtn.addEventListener('click', startClickHandler);
+
+
+
+
+}
+
+screenController();
