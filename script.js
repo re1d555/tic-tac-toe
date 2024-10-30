@@ -6,7 +6,7 @@ function gameBoard() {
     for (i = 0; i < rows; i++) {
         board[i] = [];
         for (j = 0; j < columns; j++) {
-            board[i].push(' ');
+            board[i].push('*');
         }
     }
 
@@ -77,10 +77,6 @@ function gameFlow() {
         }
     ]
 
-    const welcome = () => {
-        console.log('Enter player names please (game.getNames(`firstName`, `secondName`))');
-    }
-
     const getNames = (firstName, secondName) => {
         players[0].name = firstName;
         players[1].name = secondName;
@@ -122,43 +118,55 @@ function gameFlow() {
         printNewRound();
     }
 
-    welcome();
-
     return {getNames, playRound, getBoard: board.getBoard, getActivePlayer};
 }
 
-// const game = gameFlow();
-
 const screenController = () => {
     const game = gameFlow();
-    const board = game.getBoard();
 
     const startBtn = document.querySelector('.startBtn');
     const startDiv = document.querySelector('.startDiv');
     const gameField = document.querySelector('.gameField');
+    const firstName = document.querySelector('.firstNameInput');
+    const secondName = document.querySelector('.secondNameInput');
 
+    const updateScreen = () => {
+        gameField.textContent = ''; // clear screen before update
 
-    const startClickHandler = () => {
-        startDiv.remove();
+        const board = game.getBoard();
 
-        const boardDiv = document.createElement('div')
+        const boardDiv = document.createElement('div') 
         gameField.appendChild(boardDiv);
         boardDiv.classList.add('board');
 
+        let idCounter = 0;
         board.forEach(row => {
-            row.forEach(() => {
+            row.forEach((cell) => {
                 const cellBtn = document.createElement('button');
                 cellBtn.classList.add('cell');
-                // cellBtn.textContent = ' '
+                cellBtn.id = idCounter;
+                idCounter++;
+                cellBtn.textContent = cell;
                 boardDiv.appendChild(cellBtn);
             })
         })
     }
 
+    const startClickHandler = () => {
+        game.getNames(firstName.value, secondName.value);
+        startDiv.remove();
+        updateScreen();
+    }
+
+    const gameHandler = (e) => {
+        if (!e.target.classList.contains('cell')) return;
+        let clickedCell = e.target.id
+        game.playRound(clickedCell);
+        updateScreen(); 
+    }
+
     startBtn.addEventListener('click', startClickHandler);
-
-
-
+    gameField.addEventListener('click', gameHandler);
 
 }
 
