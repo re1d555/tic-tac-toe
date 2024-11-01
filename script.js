@@ -2,31 +2,31 @@ function gameBoard() {
     const rows = 3;
     const columns = 3;
     const board = [];
-// make 2d array as game board
+
     for (i = 0; i < rows; i++) {
         board[i] = [];
         for (j = 0; j < columns; j++) {
-            board[i].push('*');
+            board[i].push(' ');
         }
     }
 
-// for interface function
-const getBoard = () => board; 
+    const boardForReset = board; // safe array for reset board
+    const getBoardForReset = () => boardForReset; // START HERE
+    const getBoard = () => board; 
 
-// make mark in cell from 0 to 8
     const makeMark = (cell, player, combination, notSwitch) => {
         notSwitch.shift(1); 
 
         let row = Math.floor(cell / 3);
         let col = cell % 3;
-// check if already marked
-        if (board[row][col] != '*') {
+
+        if (board[row][col] != ' ') {
             console.log('Choose another marker!');
-            notSwitch.push(1); // prevent players change
+            notSwitch.push(1); 
             return;
         }
         board[row][col] = player;
-// push active player marks for check on win condition
+
         combination.push(cell);
     }
 
@@ -38,7 +38,9 @@ const getBoard = () => board;
             [board[0][0], board[1][0], board[2][0]], // [0, 3, 6]
             [board[0][1], board[1][1], board[2][1]], // [1, 4, 7]
             [board[0][2], board[1][2], board[2][2]], // [2, 5, 8]
-            [board[0][0], board[1][1], board[2][2]]] // [0, 4, 8] || [2, 4, 6]
+            [board[0][0], board[1][1], board[2][2]], // [0, 4, 8]
+            [board[0][2], board[1][1], board[2][0]]  // [2, 4, 6]
+        ]  
     
         for (i = 0; i < winCombs.length; i++) {
             if (['XXX', 'OOO'].includes(winCombs[i].join(''))) result.push(1); // push 1 for WIN
@@ -103,16 +105,7 @@ function gameFlow() {
 
         board.winCon(activePlayer.combination, activePlayer.result);
 
-        if (activePlayer.result[0] === 1) {
-            console.log(`${activePlayer.name} WIN!`);
-            board.printBoard();
-            return;
-        }
-        else if (activePlayer.result[0] === 2) {
-            console.log('TIE!');
-            board.printBoard();
-            return;
-        }
+        if (activePlayer.result[0] != undefined) return;
 
         switchPlayerTurn();
         printNewRound();
@@ -123,6 +116,7 @@ function gameFlow() {
 
 const screenController = () => {
     const game = gameFlow();
+    const board = game.getBoard();
 
     const startBtn = document.querySelector('.startBtn');
     const startDiv = document.querySelector('.startDiv');
@@ -133,7 +127,17 @@ const screenController = () => {
     const updateScreen = () => {
         gameField.textContent = ''; // clear screen before update
 
-        const board = game.getBoard();
+        const activePlayer = game.getActivePlayer();
+
+        const playerDiv = document.createElement('h3');
+        playerDiv.textContent = `${activePlayer.name}'s turn!`;
+        gameField.appendChild(playerDiv);
+        playerDiv.classList.add('player');
+
+        // const resetBtn = document.createElement('button');
+        // resetBtn.textContent = 'Reset';
+        // gameField.appendChild(resetBtn);
+        // resetBtn.classList.add('reset');
 
         const boardDiv = document.createElement('div') 
         gameField.appendChild(boardDiv);
@@ -150,9 +154,17 @@ const screenController = () => {
                 boardDiv.appendChild(cellBtn);
             })
         })
+
+        // if (activePlayer.result[0] != undefined) {
+        //     const buttons = document.querySelectorAll('.cell');
+        //     buttons.forEach((button) => button.disabled = true);
+        // }
+
+        if (activePlayer.result[0] === 1) playerDiv.textContent = `${activePlayer.name} WIN!!!`;
+        else if (activePlayer.result[0] === 2) playerDiv.textContent = `IT'S TIE!!!`;
     }
 
-    const startClickHandler = () => {
+    const gettingNamesHandler = () => {
         game.getNames(firstName.value, secondName.value);
         startDiv.remove();
         updateScreen();
@@ -160,13 +172,21 @@ const screenController = () => {
 
     const gameHandler = (e) => {
         if (!e.target.classList.contains('cell')) return;
-        let clickedCell = e.target.id
+        const clickedCell = e.target.id
         game.playRound(clickedCell);
         updateScreen(); 
     }
 
-    startBtn.addEventListener('click', startClickHandler);
+    // const resetHandler = (e) => {
+    //     if (!e.target.classList.contains('reset')) return;
+    //     console.log('123');
+    //     board = [];
+    //     updateScreen(); 
+    // }
+
+    startBtn.addEventListener('click', gettingNamesHandler);
     gameField.addEventListener('click', gameHandler);
+    // gameField.addEventListener('click', resetHandler);
 
 }
 
