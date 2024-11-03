@@ -1,18 +1,29 @@
 function gameBoard() {
-    const rows = 3;
-    const columns = 3;
-    const board = [];
-
-    for (i = 0; i < rows; i++) {
-        board[i] = [];
-        for (j = 0; j < columns; j++) {
-            board[i].push(' ');
+    const makeBoard = () => {
+        const rows = 3;
+        const columns = 3;
+        const board = [];
+        for (i = 0; i < rows; i++) {
+            board[i] = [];
+            for (j = 0; j < columns; j++) {
+                board[i].push(' ');
+            }
         }
+        return board;
     }
 
-    const boardForReset = board; // safe array for reset board
-    const getBoardForReset = () => boardForReset; // START HERE
+    let board = makeBoard();
+    const reset = makeBoard(); // save initial array for game reset
+
     const getBoard = () => board; 
+
+    const resetBoard = () => {
+        for (i = 0; i < board.length; i++) {
+            for (j = 0; j < board[i].length; j++) {
+                board[i][j] = reset[i][j];
+            }
+        }
+    }
 
     const makeMark = (cell, player, combination, notSwitch) => {
         notSwitch.shift(1); 
@@ -53,7 +64,7 @@ function gameBoard() {
         console.log(board);
     }
 
-    return {printBoard, makeMark, winCon, getBoard};
+    return {resetBoard, printBoard, makeMark, winCon, getBoard};
 }
 
 function gameFlow() {
@@ -68,16 +79,28 @@ function gameFlow() {
             marker: 'X',
             combination: [], // sequence of choosing cells
             result: [], // check for WIN or TIE
-            notSwitch: [] // check of choosing wrong cell
+            notSwitch: [], // check of choosing wrong cell
+            winScore: 0, // all games one player win score
+            tieScore: 0
         },
         {
             name: playerTwo,
             marker: 'O',
             combination: [],
             result: [],
-            notSwitch: []
+            notSwitch: [],
+            winScore: 0,
+            tieScore: 0
         }
     ]
+
+    const resetPlayers = () => {
+        for (i = 0; i < players.length; i++) {
+            players[i].combination.length = 0;
+            players[i].result.length = 0;
+            players[i].notSwitch.length = 0;
+        }
+    }
 
     const getNames = (firstName, secondName) => {
         players[0].name = firstName;
@@ -97,7 +120,7 @@ function gameFlow() {
 
     const printNewRound = () => {
         board.printBoard();
-        console.log(`${activePlayer.name}'s turn (game.playRound(availableCellOnBoard))`);
+        console.log(`${activePlayer.name}'s turn`);
     }
 
     const playRound = (markerOnBoard) => {
@@ -105,13 +128,18 @@ function gameFlow() {
 
         board.winCon(activePlayer.combination, activePlayer.result);
 
-        if (activePlayer.result[0] != undefined) return;
+        if (activePlayer.result[0] != undefined) {
+            if (activePlayer.result[0] === 1) activePlayer.winScore++;
+            if (activePlayer.result[0] === 2) activePlayer.tieScore++;
+            board.resetBoard();
+            resetPlayers();
+        } //return; 
 
         switchPlayerTurn();
         printNewRound();
     }
 
-    return {getNames, playRound, getBoard: board.getBoard, getActivePlayer};
+    return {getNames, playRound, getBoard: board.getBoard, resetBoard: board.resetBoard, resetPlayers, getActivePlayer, players};
 }
 
 const screenController = () => {
@@ -129,15 +157,19 @@ const screenController = () => {
 
         const activePlayer = game.getActivePlayer();
 
+        const resultsDiv = document.createElement('h3');
+        resultsDiv.textContent = `${game.players[0].name}'s score: ${game.players[0].winScore}; ${game.players[1].name}'s score: ${game.players[1].winScore}; TIES: ${game.players[0].tieScore + game.players[1].tieScore};`;
+        gameField.appendChild(resultsDiv);
+
         const playerDiv = document.createElement('h3');
         playerDiv.textContent = `${activePlayer.name}'s turn!`;
         gameField.appendChild(playerDiv);
         playerDiv.classList.add('player');
 
-        // const resetBtn = document.createElement('button');
-        // resetBtn.textContent = 'Reset';
-        // gameField.appendChild(resetBtn);
-        // resetBtn.classList.add('reset');
+        const resetBtn = document.createElement('button');
+        resetBtn.textContent = 'Clear';
+        gameField.appendChild(resetBtn);
+        resetBtn.classList.add('reset');
 
         const boardDiv = document.createElement('div') 
         gameField.appendChild(boardDiv);
@@ -155,13 +187,13 @@ const screenController = () => {
             })
         })
 
-        // if (activePlayer.result[0] != undefined) {
-        //     const buttons = document.querySelectorAll('.cell');
+        // if (activePlayer.result[0] != undefined) { // delete later
+        //     const buttons = document.querySelectorAll('button');
         //     buttons.forEach((button) => button.disabled = true);
         // }
 
-        if (activePlayer.result[0] === 1) playerDiv.textContent = `${activePlayer.name} WIN!!!`;
-        else if (activePlayer.result[0] === 2) playerDiv.textContent = `IT'S TIE!!!`;
+        // if (activePlayer.result[0] === 1) playerDiv.textContent = `${activePlayer.name} WIN!!!`;
+        // else if (activePlayer.result[0] === 2) playerDiv.textContent = `IT'S TIE!!!`;
     }
 
     const gettingNamesHandler = () => {
@@ -177,16 +209,16 @@ const screenController = () => {
         updateScreen(); 
     }
 
-    // const resetHandler = (e) => {
-    //     if (!e.target.classList.contains('reset')) return;
-    //     console.log('123');
-    //     board = [];
-    //     updateScreen(); 
-    // }
+    const resetHandler = (e) => {
+        if (!e.target.classList.contains('reset')) return;
+        game.resetBoard();
+        game.resetPlayers();
+        updateScreen();
+    }
 
     startBtn.addEventListener('click', gettingNamesHandler);
     gameField.addEventListener('click', gameHandler);
-    // gameField.addEventListener('click', resetHandler);
+    gameField.addEventListener('click', resetHandler);
 
 }
 
