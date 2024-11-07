@@ -6,6 +6,10 @@ html, body {
     flex-direction: column;
 }
 
+h3 {
+    margin: 0;
+}
+
 .header {
     background-color: lightgreen;
     height: 70px;
@@ -14,20 +18,31 @@ html, body {
     align-items: center;
 }
 
-.gameField {
-    padding-top: 50px;
+/* .gameField {
+    padding-top: 20px;
     background-color: lightskyblue;
     height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 30px;
+    gap: 15px;
+} */
 
+.game {
+    padding-top: 20px;
+    background-color: lightskyblue;
+    height: 100%;
+    /* display: flex; */
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    display: none;
 }
 
 .startDiv {
     height: 100%;
     display: flex;
+    background-color: lightskyblue;
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -43,10 +58,6 @@ html, body {
     height: 500px;
     width: 500px;
     border: 2px solid black;
-}
-
-.player {
-    margin: 0;
 }
 
 .board1 {

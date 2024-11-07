@@ -102,10 +102,19 @@ function gameFlow() {
         }
     }
 
+    const hardResetPlayers = () => {
+        resetPlayers();
+
+        players.forEach(player => {
+            ['winScore', 'tieScore'].forEach(key => {
+                if (key in player) player[key] = 0;
+            })
+        })
+    }
+
     const getNames = (firstName, secondName) => {
         players[0].name = firstName;
         players[1].name = secondName;
-
         printNewRound();
     }
 
@@ -114,6 +123,19 @@ function gameFlow() {
     const switchPlayerTurn = () => {
         if (activePlayer.notSwitch[0] === 1) return;
         activePlayer === players[0] ? activePlayer = players[1] : activePlayer = players[0];
+    }
+
+    const roundsCount = () => {
+        return players.reduce((acc, player) => {
+            const values = Object.values(player);
+            const lastTwo = values.slice(-2);
+            return acc + lastTwo[0] + lastTwo[1];
+        }, 1);
+    }
+
+    const getCurrentGameActivePlayer = () => {
+        let sum = roundsCount();
+        sum % 2 === 0 ? activePlayer = players[1] : activePlayer = players[0];
     }
 
     const getActivePlayer = () => activePlayer;
@@ -133,13 +155,12 @@ function gameFlow() {
             if (activePlayer.result[0] === 2) activePlayer.tieScore++;
             board.resetBoard();
             resetPlayers();
-        } //return; 
-
+        }
         switchPlayerTurn();
         printNewRound();
     }
 
-    return {getNames, playRound, getBoard: board.getBoard, resetBoard: board.resetBoard, resetPlayers, getActivePlayer, players};
+    return {getNames, playRound, getBoard: board.getBoard, resetBoard: board.resetBoard, resetPlayers, getActivePlayer, players, getCurrentGameActivePlayer, hardResetPlayers};
 }
 
 const screenController = () => {
@@ -148,7 +169,7 @@ const screenController = () => {
 
     const startBtn = document.querySelector('.startBtn');
     const startDiv = document.querySelector('.startDiv');
-    const gameField = document.querySelector('.gameField');
+    const gameField = document.querySelector('.game');
     const firstName = document.querySelector('.firstNameInput');
     const secondName = document.querySelector('.secondNameInput');
 
@@ -164,14 +185,19 @@ const screenController = () => {
         const playerDiv = document.createElement('h3');
         playerDiv.textContent = `${activePlayer.name}'s turn!`;
         gameField.appendChild(playerDiv);
-        playerDiv.classList.add('player');
 
         const resetBtn = document.createElement('button');
-        resetBtn.textContent = 'Clear';
+        resetBtn.textContent = 'Reset current game';
         gameField.appendChild(resetBtn);
         resetBtn.classList.add('reset');
+        if (game.players[0].combination.length === 0 && game.players[1].combination.length === 0) resetBtn.disabled = true;
 
-        const boardDiv = document.createElement('div') 
+        const restartBtn = document.createElement('button');
+        restartBtn.textContent = 'Restart';
+        gameField.appendChild(restartBtn);
+        restartBtn.classList.add('restart');
+
+        const boardDiv = document.createElement('div');
         gameField.appendChild(boardDiv);
         boardDiv.classList.add('board');
 
@@ -186,40 +212,42 @@ const screenController = () => {
                 boardDiv.appendChild(cellBtn);
             })
         })
-
-        // if (activePlayer.result[0] != undefined) { // delete later
-        //     const buttons = document.querySelectorAll('button');
-        //     buttons.forEach((button) => button.disabled = true);
-        // }
-
-        // if (activePlayer.result[0] === 1) playerDiv.textContent = `${activePlayer.name} WIN!!!`;
-        // else if (activePlayer.result[0] === 2) playerDiv.textContent = `IT'S TIE!!!`;
     }
 
     const gettingNamesHandler = () => {
         game.getNames(firstName.value, secondName.value);
-        startDiv.remove();
+        startDiv.style.display = 'none';
+        gameField.style.display = 'flex';
         updateScreen();
     }
 
     const gameHandler = (e) => {
         if (!e.target.classList.contains('cell')) return;
-        const clickedCell = e.target.id
+        const clickedCell = e.target.id;
         game.playRound(clickedCell);
-        updateScreen(); 
+        updateScreen();
     }
 
     const resetHandler = (e) => {
         if (!e.target.classList.contains('reset')) return;
         game.resetBoard();
         game.resetPlayers();
+        game.getCurrentGameActivePlayer();
         updateScreen();
+    }
+
+    const restartHandler = (e) => {
+        if (!e.target.classList.contains('restart')) return;
+        game.resetBoard();
+        game.hardResetPlayers();
+        startDiv.style.display = '';
+        gameField.style.display = 'none'
     }
 
     startBtn.addEventListener('click', gettingNamesHandler);
     gameField.addEventListener('click', gameHandler);
     gameField.addEventListener('click', resetHandler);
-
+    gameField.addEventListener('click', restartHandler);
 }
 
 screenController();
