@@ -32,8 +32,7 @@ function gameBoard() {
         let col = cell % 3;
 
         if (board[row][col] != ' ') {
-            console.log('Choose another marker!');
-            notSwitch.push(1); 
+            notSwitch.push(1); // prevent from taking already taken cell
             return;
         }
         board[row][col] = player;
@@ -60,14 +59,10 @@ function gameBoard() {
         if (combination.length === 5) result.push(2); // push 2 for TIE
     }
 
-    const printBoard = () => {
-        console.log(board);
-    }
-
-    return {resetBoard, printBoard, makeMark, winCon, getBoard};
+    return {resetBoard, makeMark, winCon, getBoard};
 }
 
-function gameFlow() {
+function gameFlow(dialog) {
     const board = gameBoard();
 
     let playerOne = '';
@@ -95,11 +90,11 @@ function gameFlow() {
     ]
 
     const resetPlayers = () => {
-        for (i = 0; i < players.length; i++) {
-            players[i].combination.length = 0;
-            players[i].result.length = 0;
-            players[i].notSwitch.length = 0;
-        }
+        players.forEach(player => {
+            ['combination', 'result', 'notSwitch'].forEach(key => {
+                if (key in player) player[key].length = 0;
+            })
+        })
     }
 
     const hardResetPlayers = () => {
@@ -115,7 +110,6 @@ function gameFlow() {
     const getNames = (firstName, secondName) => {
         players[0].name = firstName;
         players[1].name = secondName;
-        printNewRound();
     }
 
     let activePlayer = players[0];
@@ -140,33 +134,55 @@ function gameFlow() {
 
     const getActivePlayer = () => activePlayer;
 
-    const printNewRound = () => {
-        board.printBoard();
-        console.log(`${activePlayer.name}'s turn`);
-    }
-
     const playRound = (markerOnBoard) => {
         board.makeMark(markerOnBoard, activePlayer.marker, activePlayer.combination, activePlayer.notSwitch);
 
         board.winCon(activePlayer.combination, activePlayer.result);
-
+        
         if (activePlayer.result[0] != undefined) {
-            if (activePlayer.result[0] === 1) activePlayer.winScore++;
-            if (activePlayer.result[0] === 2) activePlayer.tieScore++;
-            board.resetBoard();
-            resetPlayers();
+            if (activePlayer.result[0] === 1) {
+                activePlayer.winScore++;
+                dialog.showDialog(`${activePlayer.name} Win!`);
+            }
+            if (activePlayer.result[0] === 2) {
+                activePlayer.tieScore++;
+                dialog.showDialog(`It's TIE`);
+            }
         }
         switchPlayerTurn();
-        printNewRound();
     }
 
     return {getNames, playRound, getBoard: board.getBoard, resetBoard: board.resetBoard, resetPlayers, getActivePlayer, players, getCurrentGameActivePlayer, hardResetPlayers};
 }
 
-const screenController = () => {
-    const game = gameFlow();
-    const board = game.getBoard();
+const screenController = (() => {
+    const dialog = {
+        showDialog : (message) => {
+            const dialog = document.createElement('dialog');
+            document.body.appendChild(dialog)
+        
+            const textNode = document.createTextNode(message);
+            dialog.appendChild(textNode);
+            const close = document.createElement('button');
+            close.textContent = 'OK'
+            dialog.appendChild(close);
+            
+            dialog.showModal();
+            dialog.style.display = 'flex';
 
+            close.addEventListener('click', () => {
+                dialog.close();
+                dialog.style.display = 'none';
+                game.resetBoard();
+                game.resetPlayers();
+                updateScreen();
+            });
+        }
+    }
+
+    const game = gameFlow(dialog);
+    const board = game.getBoard();
+    
     const startBtn = document.querySelector('.startBtn');
     const startDiv = document.querySelector('.startDiv');
     const gameField = document.querySelector('.game');
@@ -222,10 +238,17 @@ const screenController = () => {
     }
 
     const gameHandler = (e) => {
+        const actPlayer = game.getActivePlayer();
         if (!e.target.classList.contains('cell')) return;
+        // console.log(actPlayer.marker);
+
+        if (actPlayer.marker === 'X') {
+            e.target.classList.add('x');
+        } else if (!e.target.classList.contains('x')) e.target.classList.add('o');
+
         const clickedCell = e.target.id;
         game.playRound(clickedCell);
-        updateScreen();
+        // updateScreen();
     }
 
     const resetHandler = (e) => {
@@ -240,6 +263,7 @@ const screenController = () => {
         if (!e.target.classList.contains('restart')) return;
         game.resetBoard();
         game.hardResetPlayers();
+        game.getCurrentGameActivePlayer();
         startDiv.style.display = '';
         gameField.style.display = 'none'
     }
@@ -248,6 +272,6 @@ const screenController = () => {
     gameField.addEventListener('click', gameHandler);
     gameField.addEventListener('click', resetHandler);
     gameField.addEventListener('click', restartHandler);
-}
 
-screenController();
+    return {showDialog: dialog.showDialog};
+})();
