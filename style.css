@@ -4,28 +4,58 @@ html, body {
     padding: 0;
     display: flex;
     flex-direction: column;
-    background-color: #567;
+    background: linear-gradient(135deg, #000000, #1a1a2e); 
     color: #e0dfdc;
+    font-family: "Helvetica Neue", sans-serif;
 }
 
 h3 {
     margin: 0;
 }
 
-.header {
-    margin-top: 20px;
-    height: 100px;
+.logo {
+    margin-top: 50px;
     align-self: center;
+    width: 450px;
+    height: 110px;
+    border: 2px solid #8000ff;
+    box-shadow: 0 0 5px #8000ff, 0 0 10px #8000ff, 0 0 20px #8000ff;
+    border-radius: 33px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(4.5deg);
+}
+
+.header {
     font-size: 3em;
-    color: #e0dfdc;
-    background-color: #567;
+    color: #8000ff; 
+    text-shadow: 0 0 5px #8000ff, 0 0 10px #8000ff, 0 0 20px #8000ff;
+    background: transparent;
     letter-spacing: .1em;
-    text-shadow: 0 -1px 0 #fff, 0 1px 0 #2e2e2e, 0 2px 0 #2c2c2c, 0 3px 0 #2a2a2a, 0 4px 0 #282828, 0 5px 0 #262626, 0 6px 0 #242424, 0 7px 0 #222, 0 8px 0 #202020, 0 9px 0 #1e1e1e, 0 10px 0 #1c1c1c, 0 11px 0 #1a1a1a, 0 12px 0 #181818, 0 13px 0 #161616, 0 14px 0 #141414, 0 15px 0 #121212, 0 22px 30px rgba(0, 0, 0, 0.9);
+    animation: flickering 1.5s infinite alternate;
+}
+
+@keyframes flickering {
+    0%, 18%, 22%, 25%, 53%, 57%, 100% {
+        text-shadow:
+        0 0 4px #8000ff,
+        0 0 11px #8000ff,
+        0 0 19px #8000ff,
+        0 0 40px #8000ff,
+        0 0 80px #8000ff,
+        0 0 90px #8000ff,
+        0 0 100px #8000ff,
+        0 0 200px #8000ff;
+      }
+      20%, 24%, 55% {       
+        text-shadow: none;
+      }
 }
 
 .game {
     padding-top: 20px;
-    background-color: #567;
+    background: transparent; 
     height: 100%;
     flex-direction: column;
     align-items: center;
@@ -36,22 +66,85 @@ h3 {
 .startDiv {
     height: 100%;
     display: flex;
-    background-color: #567;
+    background: transparent; 
     flex-direction: column;
     justify-content: start;
     align-items: center;
-    gap: 10px;
+    gap: 45px;
     margin-top: 150px;
+}
+
+.editDivs {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+}
+
+label {
+    background: #8000ff;
+    border-radius: 25px;
+    color: #000000;
+    font-size: 1.5em;
+    height: 40px;
+    width: 240px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+input {
+    background: #8000ffab;
+    border-radius: 25px;
+    color: #000000;
+    border: none;
+    font-size: 1.5em;
+    width: 240px;
+    padding-left: 15px;
+}
+
+input::placeholder {
+    color: #000000;
+}
+
+input:focus {
+    box-shadow: 0 0 5px #8000ff, 0 0 5px #8000ff, 0 0 3px #8000ff;
+    outline: none;
+    background: #8000ff;
 }
 
 button {
     border-radius: 15px;
 }
 
+.gameButton {
+    width: 130px;
+    height: 40px;
+    background: transparent;
+    border-radius: 25px;
+    font-size: 1.5em;
+}
+
+.startBtn {
+    border: 2px solid #8000ff;
+    color: #8000ff;
+}
+
+.startBtn:hover {
+    background: #8000ff;
+    color: #000;
+    box-shadow: 0 0 5px #8000ff, 0 0 5px #8000ff, 0 0 5px #8000ff;
+}
+
+.reset, .restart {
+    border: 2px solid #00f7ff;
+    color: #00f7ff;
+}
+
 .board {
     height: 100%;
     display: grid;
-    gap: 4px;
+    gap: 9px;
     grid-template-columns: 1fr 1fr 1fr;
     grid-template-rows: 1fr 1fr 1fr;
     height: 500px;
@@ -64,36 +157,43 @@ button {
 }
 
 .cell {
-    background-color: rgb(156, 196, 156);
+    background-color: #00f7ff;
+    border: none;
 }
 
 .x {
-    background-image: url('../tic-tac-toe/images/TIC.png');
+    background-image: url('../tic-tac-toe/images/noun-cross-5790168.svg');
     background-size: cover;
 }
 
 .o {
-    background-image: url('../tic-tac-toe/images/TAC.png');
+    background-image: url('../tic-tac-toe/images/noun-circle-915401.svg');
     background-size: cover;
 }
 
 .footer {
-    background-color: lightgoldenrodyellow;
-    height: 70px;
+    background-color: transparent;
     display: flex;
     justify-content: center;
     align-items: center;
+    color: #8000ff;
+    position: absolute;
+    bottom:0;
+    left:0;
+    right:0;
+    height: 50px;
+}
+
+.gameFooter {
+    color: #00f7ff;
 }
 
 dialog {
-    height: 100px;
-    width: 50px;
+    height: 200px;
+    width: 200px;
     display: none;
     flex-direction: column;
     gap: 10px;
+    align-items: center;
     justify-content: center;
 }
-
-/* dialog[open] {
-    display: flex;
-} */

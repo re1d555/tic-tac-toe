@@ -164,6 +164,7 @@ const screenController = (() => {
             const textNode = document.createTextNode(message);
             dialog.appendChild(textNode);
             const close = document.createElement('button');
+            close.classList.add('gameButton');
             close.textContent = 'OK'
             dialog.appendChild(close);
             
@@ -188,6 +189,8 @@ const screenController = (() => {
     const gameField = document.querySelector('.game');
     const firstName = document.querySelector('.firstNameInput');
     const secondName = document.querySelector('.secondNameInput');
+    const logo = document.querySelector('.logo');
+    const footer = document.querySelector('.footer');
 
     const updateScreen = () => {
         gameField.textContent = ''; // clear screen before update
@@ -203,15 +206,15 @@ const screenController = (() => {
         gameField.appendChild(playerDiv);
 
         const resetBtn = document.createElement('button');
-        resetBtn.textContent = 'Reset current game';
+        resetBtn.textContent = 'Reset';
         gameField.appendChild(resetBtn);
-        resetBtn.classList.add('reset');
-        if (game.players[0].combination.length === 0 && game.players[1].combination.length === 0) resetBtn.disabled = true;
+        resetBtn.classList.add('reset', 'gameButton');
+        // if (game.players[0].combination.length === 0 && game.players[1].combination.length === 0) resetBtn.disabled = true;
 
         const restartBtn = document.createElement('button');
         restartBtn.textContent = 'Restart';
         gameField.appendChild(restartBtn);
-        restartBtn.classList.add('restart');
+        restartBtn.classList.add('restart', 'gameButton');
 
         const boardDiv = document.createElement('div');
         gameField.appendChild(boardDiv);
@@ -234,6 +237,8 @@ const screenController = (() => {
         game.getNames(firstName.value, secondName.value);
         startDiv.style.display = 'none';
         gameField.style.display = 'flex';
+        logo.style.display = 'none';
+        footer.classList.add('gameFooter');
         updateScreen();
     }
 
@@ -266,6 +271,8 @@ const screenController = (() => {
         game.getCurrentGameActivePlayer();
         startDiv.style.display = '';
         gameField.style.display = 'none'
+        logo.style.display = '';
+        footer.classList.remove('gameFooter');
     }
 
     startBtn.addEventListener('click', gettingNamesHandler);
