@@ -164,7 +164,7 @@ const screenController = (() => {
             const textNode = document.createTextNode(message);
             dialog.appendChild(textNode);
             const close = document.createElement('button');
-            close.classList.add('gameButton');
+            close.classList.add('gameButton', 'closeDialog');
             close.textContent = 'OK'
             dialog.appendChild(close);
             
@@ -187,34 +187,33 @@ const screenController = (() => {
     const startBtn = document.querySelector('.startBtn');
     const startDiv = document.querySelector('.startDiv');
     const gameField = document.querySelector('.game');
+    const gameUax = document.querySelector('.gameUi')
     const firstName = document.querySelector('.firstNameInput');
     const secondName = document.querySelector('.secondNameInput');
     const logo = document.querySelector('.logo');
     const footer = document.querySelector('.footer');
 
-    const updateScreen = () => {
-        gameField.textContent = ''; // clear screen before update
-
+    const gameUi = () => {
+        gameUax.textContent = '';
         const activePlayer = game.getActivePlayer();
 
-        const resultsDiv = document.createElement('h3');
+        const resultsDiv = document.createElement('h2');
         resultsDiv.textContent = `${game.players[0].name}'s score: ${game.players[0].winScore}; ${game.players[1].name}'s score: ${game.players[1].winScore}; TIES: ${game.players[0].tieScore + game.players[1].tieScore};`;
-        gameField.appendChild(resultsDiv);
+        gameUax.appendChild(resultsDiv);
 
-        const playerDiv = document.createElement('h3');
+        const playerDiv = document.createElement('h2');
         playerDiv.textContent = `${activePlayer.name}'s turn!`;
-        gameField.appendChild(playerDiv);
+        activePlayer.marker === 'X' ? playerDiv.style.color = '#9b59b6' : playerDiv.style.color = '#f3dc47'
+        gameUax.appendChild(playerDiv);
+    }
+
+    const updateScreen = () => {
+        gameField.textContent = ''; // clear screen before update
 
         const resetBtn = document.createElement('button');
         resetBtn.textContent = 'Reset';
         gameField.appendChild(resetBtn);
         resetBtn.classList.add('reset', 'gameButton');
-        // if (game.players[0].combination.length === 0 && game.players[1].combination.length === 0) resetBtn.disabled = true;
-
-        const restartBtn = document.createElement('button');
-        restartBtn.textContent = 'Restart';
-        gameField.appendChild(restartBtn);
-        restartBtn.classList.add('restart', 'gameButton');
 
         const boardDiv = document.createElement('div');
         gameField.appendChild(boardDiv);
@@ -231,21 +230,27 @@ const screenController = (() => {
                 boardDiv.appendChild(cellBtn);
             })
         })
+
+        const restartBtn = document.createElement('button');
+        restartBtn.textContent = 'Restart';
+        gameField.appendChild(restartBtn);
+        restartBtn.classList.add('restart', 'gameButton');
     }
 
     const gettingNamesHandler = () => {
         game.getNames(firstName.value, secondName.value);
         startDiv.style.display = 'none';
         gameField.style.display = 'flex';
+        gameUax.style.display = 'flex';
         logo.style.display = 'none';
         footer.classList.add('gameFooter');
+        gameUi();
         updateScreen();
     }
 
     const gameHandler = (e) => {
         const actPlayer = game.getActivePlayer();
         if (!e.target.classList.contains('cell')) return;
-        // console.log(actPlayer.marker);
 
         if (actPlayer.marker === 'X') {
             e.target.classList.add('x');
@@ -253,7 +258,7 @@ const screenController = (() => {
 
         const clickedCell = e.target.id;
         game.playRound(clickedCell);
-        // updateScreen();
+        gameUi();
     }
 
     const resetHandler = (e) => {
@@ -261,6 +266,7 @@ const screenController = (() => {
         game.resetBoard();
         game.resetPlayers();
         game.getCurrentGameActivePlayer();
+        gameUi();
         updateScreen();
     }
 
@@ -271,6 +277,7 @@ const screenController = (() => {
         game.getCurrentGameActivePlayer();
         startDiv.style.display = '';
         gameField.style.display = 'none'
+        gameUax.style.display = 'none';
         logo.style.display = '';
         footer.classList.remove('gameFooter');
     }
